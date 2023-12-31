@@ -1,28 +1,37 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import React from 'react';
 
-export default function SortPopup() {
+export default function SortPopup({ items }) {
   const [visiblePopup, setVisiblePopup] = useState(false);
   const sortRef = useRef();
+  const [activeItem, setActiveItem] = useState(0);
+  const activeLabel = items[activeItem];
 
   const toggleVisiblePopup = () => {
     setVisiblePopup(!visiblePopup);
   };
 
   const handleOutsideClick = (event) => {
-    if (!event.target.offsetParent !== sortRef.current) {
+    const path = event.path || (event.composedPath && event.composedPath());
+    if (!path.includes(sortRef.current)) {
       setVisiblePopup(false);
     }
   };
 
-  React.useEffect(() => {
+  const onSelectItem = (index) => {
+    setActiveItem(index);
+    setVisiblePopup(false);
+  };
+
+  useEffect(() => {
     document.body.addEventListener('click', handleOutsideClick);
-  }, []);
+  });
 
   return (
     <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
+          className={visiblePopup ? 'rotated' : ''}
           width="10"
           height="6"
           viewBox="0 0 10 6"
@@ -34,14 +43,20 @@ export default function SortPopup() {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={toggleVisiblePopup}>популярности</span>
+        <span onClick={toggleVisiblePopup}>{activeLabel}</span>
       </div>
       {visiblePopup && (
         <div className="sort__popup">
           <ul>
-            <li className="active">популярности</li>
-            <li>цене</li>
-            <li>алфавиту</li>
+            {items &&
+              items.map((name, index) => (
+                <li
+                  onClick={() => onSelectItem(index)}
+                  className={activeItem === index ? 'active' : ''}
+                  key={`${name} ${index}`}>
+                  {name}
+                </li>
+              ))}
           </ul>
         </div>
       )}

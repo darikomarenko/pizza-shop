@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
 import axios from 'axios';
-import './App.css';
+import { useDispatch } from 'react-redux';
 import { Header } from './components';
 import { Home } from './pages';
+import { setPizzas } from './redux/actions/pizzas';
 
 function App() {
-  useEffect(() => {
-    axios.get('http://localhost:3000/db.json').then(({ data }) => {
-      setPizzas(data.pizzas);
-      console.log(data);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    axios.get('http://localhost:3000/pizzas').then(({ data }) => {
+      dispatch(setPizzas(data));
     });
   }, []);
 
@@ -16,7 +18,7 @@ function App() {
     <div className="wrapper">
       <Header />
       <div className="content">
-        <Home render={() => <Home items={pizzas} />} />
+        <Home />
       </div>
     </div>
   );
